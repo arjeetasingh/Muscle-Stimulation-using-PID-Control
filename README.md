@@ -6,16 +6,6 @@ simulation study, and the tools to calibrate and identify the real system.
 
 > **Safety.** This drives current through the body. Read [SAFETY.md](SAFETY.md)
 
-## Status (what is and is not done)
-
-| Part | Status |
-|---|---|
-| Muscle model, controller, identification, tuning, simulation study | Done, results in `data/sim` and `docs/figures` (all **simulated**) |
-| FSR calibration tool, serial logger, session analysis | Done, tested on synthetic data |
-| ESP32 firmware | Written. Core logic unit-tested on a PC (1203 checks), C++ controller matches the Python one, sketch compiles against stub headers. **Not run on hardware** |
-| High-voltage stimulator stage | Specified by function in `docs/hardware.md`. No verified schematic |
-| Measurements on a person | **None in this repository.** `data/measured/` is empty on purpose |
-
 ## The control problem
 
 ![block diagram](docs/figures/fig_block_diagram.png)
