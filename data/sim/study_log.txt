@@ -1,5 +1,0 @@
-Identified SOPDT: K=1.112  tau1=0.074 s  tau2=0.074 s  theta=0.056 s  (RMSE 0.086 N, R2 0.9966)
-SIMC tau_c = 0.094 s
-PI : Kp=0.536  Ki=4.802 1/s
-PID: Kp=0.891  Ki=5.992 1/s  Kd=0.0332 s  Tf=0.020 s
-Linear-map ablation identified at 6 N: K=1.776; PI Kp=0.368 Ki=3.127
