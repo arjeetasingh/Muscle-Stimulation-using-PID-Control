@@ -34,7 +34,7 @@ so PI is the default. The plant is a model with assumed parameters, see [docs/th
 ![tracking](docs/figures/fig_tracking.png)
 ![fatigue](docs/figures/fig_fatigue.png)
 
-Poster (A1 landscape): [docs/poster/poster.pdf](docs/poster/poster.pdf), source `docs/poster/poster.html`, rebuilt with `docs/poster/build_poster.py`.
+Poster (A1 landscape): [docs/poster/poster.pdf](docs/poster/poster.pdf), source `docs/poster/poster.html`.
 
 ## Repository layout
 
