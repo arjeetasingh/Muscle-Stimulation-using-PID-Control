@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Muscle Stimulation using PID Control - poster</title>
+<style>
+@page { size: 841mm 594mm; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #fff; }
+body { width: 841mm; height: 594mm; font-family: "Liberation Serif", "Times New Roman", Times, serif; color: #000; font-size: 17pt; line-height: 1.28; }
+.page { width: 841mm; height: 594mm; padding: 14mm 16mm 12mm 16mm; display: flex; flex-direction: column; gap: 6mm; }
+header { border-bottom: 1.2mm solid #000; padding-bottom: 4mm; display: flex; justify-content: space-between; align-items: flex-end; }
+h1 { font-size: 46pt; margin: 0; font-weight: 700; letter-spacing: 0.2pt; line-height: 1.05; }
+.sub { font-size: 20pt; margin-top: 2mm; }
+.auth { text-align: right; font-size: 18pt; line-height: 1.3; }
+.auth b { font-size: 22pt; }
+.main { flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: auto auto auto; align-content: start; gap: 5mm 7mm; min-height: 0; }
+section { border-top: 0.5mm solid #000; padding-top: 1.5mm; min-width: 0; }
+h2 { font-size: 20pt; margin: 0 0 1.5mm 0; font-weight: 700; }
+p { margin: 0 0 1.6mm 0; }
+ul { margin: 0 0 1.6mm 0; padding-left: 5mm; }
+li { margin: 0 0 0.8mm 0; }
+img { display: block; width: 100%; height: auto; }
+.cap { font-size: 12.5pt; font-style: italic; margin-top: 1mm; }
+.eq { margin: 1.4mm 0 1.8mm 0; padding: 1.6mm 3mm; border-left: 0.8mm solid #000; background: #fff; font-size: 16pt; }
+i.v { font-style: italic; }
+sub, sup { font-size: 70%; line-height: 0; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5pt; }
+th, td { border-top: 0.3mm solid #000; border-bottom: 0.3mm solid #000; padding: 0.9mm 1.6mm; text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+thead th { border-top: 0.6mm solid #000; border-bottom: 0.6mm solid #000; font-weight: 700; }
+table.t2 td, table.t2 th { text-align: left; }
+tbody tr:last-child td { border-bottom: 0.6mm solid #000; }
+.tag { font-weight: 700; }
+.c12 { grid-column: 1 / span 2; }
+.c34 { grid-column: 3 / span 2; }
+footer { font-size: 12pt; border-top: 0.5mm solid #000; padding-top: 1.5mm; display: flex; justify-content: space-between; }
+</style></head>
+<body><div class="page">
+
+<header>
+  <div>
+    <h1>Muscle Stimulation using PID Control</h1>
+    <div class="sub">Closed-loop force control of electrically stimulated muscle: ESP32 stimulator, force sensor, identified model and simulation study</div>
+  </div>
+  <div class="auth"><b>Shashank</b><br>M.Tech Biomedical Devices Engineering, IIT Indore<br>BSE 649, Modelling and Control in Biomedical Devices</div>
+</header>
+
+<div class="main">
+<div style="grid-column:1; grid-row:1 / span 2; display:flex; flex-direction:column; gap:5mm;"><section>
+  <h2>1. Objective</h2>
+  <p>Hold the force of a stimulated muscle at a reference value, in newtons, while the muscle fatigues and its gain changes.</p>
+  <p><span class="tag">Structure: SISO.</span> One input, the stimulation intensity <i class="v">u</i> (0 to 1), and one output, the muscle force <i class="v">F</i> (N). Heart rate, skin temperature, pulse current and rail voltage are <i>safety checks</i>, not loop inputs.</p>
+  <p><span class="tag">Mirror mode.</span> The EMG of the healthy opposite limb, normalised to % of maximum voluntary contraction, sets the reference. EMG and force are different quantities and are linked only through this scale.</p>
+</section><section>
+  <h2>2. Plant model and controller</h2>
+  <p>Hammerstein model: recruitment nonlinearity, dead time 40 ms, two lags (60 ms, 100 ms), fatigue.</p>
+  <div class="eq"><i class="v">r</i>(<i class="v">u</i>) = [&sigma;(<i class="v">k</i>(<i class="v">u</i> &minus; <i class="v">u</i><sub>50</sub>)) &minus; &sigma;(&minus;<i class="v">k u</i><sub>50</sub>)] / [&sigma;(<i class="v">k</i>(1 &minus; <i class="v">u</i><sub>50</sub>)) &minus; &sigma;(&minus;<i class="v">k u</i><sub>50</sub>)]<br>
+  <i class="v">F</i> = <i class="v">F</i><sub>max</sub> &middot; <i class="v">&phi;</i> &middot; <i class="v">x</i><sub>2</sub>, &nbsp;<i class="v">F</i><sub>max</sub> = 15 N, <i class="v">k</i> = 9, <i class="v">u</i><sub>50</sub> = 0.45</div>
+  <p>Controller, 100 Hz, in the force-demand domain:</p>
+  <div class="eq"><i class="v">e</i> = <i class="v">F</i><sub>ref</sub> &minus; <i class="v">F</i><sub>meas</sub><br>
+  <i class="v">v</i> = <i class="v">F</i><sub>ref</sub> + <i class="v">K</i><sub>p</sub> <i class="v">e</i> + <i class="v">K</i><sub>i</sub>&int;<i class="v">e</i> d<i class="v">t</i> + <i class="v">D</i>,&nbsp;&nbsp;<i class="v">u</i> = &Phi;<sup>&minus;1</sup>(<i class="v">v</i>)</div>
+  <p>&Phi;<sup>&minus;1</sup> is the identified inverse recruitment table. It cancels the S-curve, so the PID sees a plant of gain about 1 N/N. Feed-forward of <i class="v">F</i><sub>ref</sub>, back-calculation anti-windup, derivative on the measurement, <i class="v">u</i> slew limit 2 s<sup>&minus;1</sup>.</p>
+  <p style="font-size:13pt"><b>Units:</b> <i class="v">F</i>, <i class="v">v</i> [N]; <i class="v">u</i> [&ndash;]; <i class="v">I</i> [mA]; <i class="v">K</i><sub>p</sub> [N/N]; <i class="v">K</i><sub>i</sub> [s<sup>&minus;1</sup>]; <i class="v">K</i><sub>d</sub> [s]; RMSE [N]; IAE [N s].</p>
+</section><section><h2>11. Status and limitations</h2>
+<ul>
+<li>Model parameters are <b>assumed</b>, typical of the literature. The recruitment table shipped in the firmware comes from the simulation, not from a person.</li>
+<li>Firmware: unit-tested on a PC, the C++ controller reproduces the Python one, the sketch compiles against stub headers. <b>Not run on hardware.</b></li>
+<li>The high-voltage analogue stage is specified by function only, no verified schematic.</li>
+<li>No measurements on a person. Simulated and measured results are kept in separate folders.</li>
+<li>PID gives only a small error reduction over PI at about three times the control effort.</li>
+</ul></section></div><section style="grid-column:2 / span 2; grid-row:1;">
+  <h2>3. Control structure</h2>
+  <img src="../figures/fig_block_diagram.png" alt="block diagram">
+</section><section style="grid-column:2 / span 2; grid-row:2;">
+  <h2>4. Stimulation stage (corrected)</h2>
+  <img src="../figures/fig_stimulator.png" alt="stimulator">
+</section><div style="grid-column:4; grid-row:1 / span 2; display:flex; flex-direction:column; gap:5mm;"><section>
+  <h2>5. Identification and tuning</h2>
+  <ul>
+    <li><b>Staircase</b> (open loop, ascending <i class="v">u</i>): plateau forces give the recruitment curve, stored as a look-up table in the firmware.</li>
+    <li><b>Step</b> of force demand 3 &rarr; 6 N: fit <i class="v">K</i> e<sup>&minus;&theta;<i class="v">s</i></sup> / ((&tau;<sub>1</sub><i class="v">s</i>+1)(&tau;<sub>2</sub><i class="v">s</i>+1)).</li>
+    <li><b>SIMC rules</b> with &tau;<sub>c</sub> = effective dead time.</li>
+  </ul>
+  <table>
+    <thead><tr><th>Simulated identification</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td><i class="v">K</i></td><td>1.11 N/N</td></tr>
+      <tr><td>&tau;<sub>1</sub>, &tau;<sub>2</sub></td><td>0.074 s, 0.074 s</td></tr>
+      <tr><td>&theta; (dead time)</td><td>0.056 s</td></tr>
+      <tr><td>fit <i class="v">R</i><sup>2</sup></td><td>0.997</td></tr>
+      <tr><td>PI: <i class="v">K</i><sub>p</sub>, <i class="v">K</i><sub>i</sub></td><td>0.54, 4.80 s<sup>&minus;1</sup></td></tr>
+      <tr><td>PID: <i class="v">K</i><sub>p</sub>, <i class="v">K</i><sub>i</sub>, <i class="v">K</i><sub>d</sub></td><td>0.89, 6.0 s<sup>&minus;1</sup>, 0.033 s</td></tr>
+    </tbody>
+  </table>
+  <p class="cap">Force sensor: calibrated against known masses, 16-point table, leave-one-out error reported.</p>
+</section><section>
+  <h2>6. Corrections to the first version</h2>
+  <table class="t2">
+    <thead><tr><th>First version</th><th>Now</th></tr></thead>
+    <tbody>
+      <tr><td>&ldquo;MIMO&rdquo;</td><td>SISO: one input, one output</td></tr>
+      <tr><td>PWM about 490 Hz, one polarity</td><td>Biphasic, charge balanced, 35 Hz, 300 &mu;s per phase, constant current</td></tr>
+      <tr><td>EMG and FSR compared directly</td><td>EMG in % MVC, force in N, explicit scale</td></tr>
+      <tr><td>FSR as muscle force</td><td>Force on a rigid pad, calibrated</td></tr>
+      <tr><td>ACS712 on an Uno, about 26 mA per ADC step</td><td>Shunt, amplifier, 12-bit ADC, hardware limit</td></tr>
+      <tr><td>Double-integrator muscle</td><td>Recruitment, dead time, lags, fatigue</td></tr>
+      <tr><td>No stimulator hardware</td><td>Boost supply, current source, bridge, blocking capacitor, kill switch</td></tr>
+    </tbody>
+  </table>
+</section><section><h2>12. Next steps</h2>
+<ol style="margin:0; padding-left:6mm">
+<li>Build and verify the stimulator on a dummy load.</li>
+<li>Calibrate the force sensor, report its leave-one-out error.</li>
+<li>Measure the recruitment curve and step response, retune.</li>
+<li>Closed-loop trials with supervision, then mirror mode.</li>
+</ol></section></div><section style="grid-column:1; grid-row:3;"><h2>7. Simulation: tracking <span style="font-weight:400">(simulated)</span></h2><div><img src="../figures/fig_tracking.png" alt="tracking"><div class="cap">Three 6 N contractions: PID reaches the reference, open loop and P keep an offset.</div></section><section style="grid-column:2; grid-row:3;"><h2>8. Simulation: fatigue <span style="font-weight:400">(simulated)</span></h2><div><img src="../figures/fig_fatigue.png" alt="fatigue"><div class="cap">60 s hold: open-loop force falls to 72 % of its start, PID holds 6 N.</div></section><section style="grid-column:3; grid-row:3;"><h2>9. Results (5 noise seeds, simulated)</h2><table>
+    <thead><tr><th>RMSE (N)</th><th>OL</th><th>P</th><th>PI</th><th>PID</th></tr></thead>
+    <tbody>
+      <tr><td>Nominal</td><td>0.45</td><td>0.30</td><td>0.13</td><td>0.12</td></tr>
+      <tr><td>Gain &times; 0.7</td><td>1.18</td><td>0.91</td><td>0.24</td><td>0.21</td></tr>
+      <tr><td>Gain &times; 1.3</td><td>1.61</td><td>1.02</td><td>0.17</td><td>0.14</td></tr>
+      <tr><td>Fatigue: end / start</td><td>72 %</td><td>79 %</td><td>99.9 %</td><td>99.9 %</td></tr>
+    </tbody>
+  </table><p style="margin-top:2mm; font-size:13.5pt">Inverse recruitment cuts PI error 2.3 to 3 times at 3, 6 and 9 N. PID gains little over PI and moves <i class="v">u</i> about 3 times more.</p></section><section style="grid-column:4; grid-row:3;"><h2>10. Safety supervisor</h2><p style="font-size:13.5pt">Latching faults: pulse current &gt; 35 mA, rail &gt; 70 V, skin &gt; 40 &deg;C or +4 &deg;C, heart rate outside 40 to 150 min<sup>&minus;1</sup>, force &gt; 10 N, session &gt; 300 s, 15 s continuous budget, no current measured, loop late &gt; 50 ms. Dead-man button, kill switch, hardware current limit.</p><table style="margin-top:2mm">
+<thead><tr><th>Stimulation parameter</th><th>Value</th></tr></thead>
+<tbody><tr><td>Waveform</td><td>biphasic, symmetric</td></tr>
+<tr><td>Rate</td><td>35 Hz</td></tr>
+<tr><td>Phase width, gap</td><td>300 &mu;s, 50 &mu;s</td></tr>
+<tr><td>Current at <i class="v">u</i> = 1</td><td>30 mA (limit 35 mA)</td></tr>
+<tr><td>Duty cycle</td><td>about 2 %</td></tr></tbody></table></section>
+</div>
+
+<footer><div>Muscle Stimulation using PID Control. Author: Shashank, IIT Indore. Not a medical device; see SAFETY.md in the repository.</div><div>Code and data: repository folder muscle-stimulation-pid</div></footer>
+</div></body></html>
