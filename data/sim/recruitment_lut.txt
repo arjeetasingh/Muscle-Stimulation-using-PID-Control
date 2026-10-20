@@ -1,0 +1,3 @@
+constexpr int RECRUIT_N = 10;
+constexpr float RECRUIT_U[RECRUIT_N] = { 0.0000f, 0.1000f, 0.2000f, 0.3000f, 0.4000f, 0.5000f, 0.6000f, 0.7000f, 0.8000f, 0.9000f };
+constexpr float RECRUIT_F_N[RECRUIT_N] = { 0.0000f, 0.3093f, 1.0693f, 2.6468f, 4.8453f, 8.6674f, 10.8191f, 11.7228f, 13.3972f, 13.8375f };
